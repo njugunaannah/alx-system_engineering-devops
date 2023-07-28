@@ -30,15 +30,15 @@ int infinite_while(void)
  */
 int main(void)
 {
-	pid_t pid;
+	pid_t child_pid;
 	char count = 0;
 
 	while (count < 5)
 	{
-		pid = fork();
-		if (pid > 0)
+		child_pid = fork();
+		if (child_pid > 0)
 		{
-			printf("Zombie process created, PID: %d\n", pid);
+			printf("Zombie process created, PID: %d\n", child_pid);
 			sleep(1);
 			count++;
 		}
