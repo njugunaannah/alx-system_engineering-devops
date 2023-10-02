@@ -1,35 +1,34 @@
 #!/usr/bin/env bash
-# Script that configures Nginx with a custom HTTP response header
+# Installs nginx on my server
+apt-get update
+apt-get install -y nginx
 
-# Update package list and install Nginx
-sudo apt-get update
-sudo apt-get -y install nginx
+# Create directories and files
+mkdir -p /var/www/test/html
+touch /var/www/test/html/index.html
+echo "Hello World!" > /var/www/test/html/index.html
+touch /var/www/test/html/404.html
+echo "Ceci n'est pas une page" > /var/www/test/html/404.html
 
-# Define the custom header name
-custom_header_name="X-Served-By"
+# Configure Nginx
+printf %s "server {
+     listen      80;
+     listen      [::]:80;
+     add_header  X-Served-By \$HOSTNAME;
+     root        /var/www/test/html;
+     index       index.html index.htm;
 
-# Define the custom header value (hostname of the server)
-custom_header_value=$(hostname)
+     location /redirect_me {
+        return 301 'https://www.youtube.com/watch?v=QH2-TGUlwu4';
+    }
 
-# Configure Nginx to add the custom header
-sudo bash -c "cat > /etc/nginx/sites-available/default" <<EOL
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    server_name _;
-
-    add_header $custom_header_name $custom_header_value;
-
-    location / {
-        proxy_pass http://localhost:5000; # Adjust the proxy_pass accordingly
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
+    error_page 404 /404.html;
+    location /404 {
+      root /var/www/test/html;
+      internal;
     }
 }
-EOL
+" > /etc/nginx/sites-available/default
 
-# Restart Nginx to apply changes
-sudo service nginx restart
+# Restart Nginx service
+service nginx restart
