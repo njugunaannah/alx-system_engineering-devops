@@ -1,35 +1,36 @@
 #!/usr/bin/env bash
-# Configure Nginx server with a custom header
-# configures web-02 to be identical to web-01
+# Script that configures Nginx with a custom HTTP response header
 
-sudo apt-get -y update
+# Update package list and install Nginx
+sudo apt-get update
 sudo apt-get -y install nginx
-sudo service nginx start
 
-sudo sh -c 'echo "Hello World!" > /var/www/html/index.nginx-debian.html'
-echo "Ceci n'est pas une page" | sudo tee /usr/share/nginx/html/custom_404.html
-sudo sh -c 'printf %s "server {
+# Define the custom header name
+custom_header_name="X-Served-By"
+
+# Define the custom header value (hostname of the server)
+custom_header_value=$(hostname)
+
+# Configure Nginx to add the custom header
+sudo bash -c "cat > /etc/nginx/sites-available/default" <<EOL
+server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    add_header X-Served-By $HOSTNAME;
-    root   /var/www/html;
-    index  index.html index.htm;
 
-    location /redirect_me {
-        return 301 http://google.com/;
-    }
+    server_name _;
+
+    add_header $custom_header_name $custom_header_value;
 
     location / {
-        # First attempt to serve request as file, then
-        # as directory, then fall back to displaying a 404.
-        try_files $uri $uri/ =404;
+        proxy_pass http://localhost:5000; # Adjust the proxy_pass accordingly
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
+}
+EOL
 
-    error_page 404 /404.html;
-    location /404 {
-      root /var/www/html;
-      internal;
-    }
-}" > /etc/nginx/sites-available/default'
-
+# Restart Nginx to apply changes
 sudo service nginx restart
+
