@@ -11,7 +11,7 @@ echo "Ceci n'est pas une page" | sudo tee /usr/share/nginx/html/custom_404.html
 sudo sh -c 'printf %s "server {
     listen 80 default_server;
     listen [::]:80 default_server;
-    add_header X-Served-By $HOSTNAME;
+    add_header X-Served-By $hostname;
     root   /var/www/html;
     index  index.html index.htm;
 
