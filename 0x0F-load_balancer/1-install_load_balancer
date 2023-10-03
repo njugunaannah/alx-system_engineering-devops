@@ -21,5 +21,8 @@ sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.backup
 # Overwrite the configuration file with the new configuration
 printf "%s" "$CONFIG" | sudo tee /etc/haproxy/haproxy.cfg
 
+# Output information about the configured web servers
+echo "Configured web servers: web-01, web-02"
+
 # Restart HAProxy to apply changes
 sudo service haproxy restart
