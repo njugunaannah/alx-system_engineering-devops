@@ -11,4 +11,3 @@ mysql -e "GRANT REPLICATION CLIENT ON *.* TO '${MYSQL_USER}'@'localhost'"
 
 # Show grants for the created user
 mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e "SHOW GRANTS FOR '${MYSQL_USER}'@'localhost'"
-
