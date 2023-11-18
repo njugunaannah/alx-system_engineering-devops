@@ -1,0 +1,11 @@
+# Example gunicorn.service
+[Unit]
+Description=Gunicorn instance to serve AirBnB clone v4
+
+[Service]
+ExecStart=/path/to/gunicorn --bind 0.0.0.0:5003 --workers 3 web_dynamic.2-hbnb:app
+StandardOutput=append:/tmp/airbnb-access.log
+StandardError=append:/tmp/airbnb-error.log
+
+[Install]
+WantedBy=multi-user.target
